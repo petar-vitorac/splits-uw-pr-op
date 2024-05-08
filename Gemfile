@@ -2,6 +2,6 @@
 
 source 'https://rubygems.org'
 
+gem 'dotenv', groups: %i[development test]
 gem 'octokit'
 gem 'rake'
-gem 'rubocop'
