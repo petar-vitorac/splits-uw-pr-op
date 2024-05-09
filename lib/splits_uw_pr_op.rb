@@ -14,10 +14,8 @@ puts SPLITS
 client = Octokit::Client.new(access_token: ENV['GH_ACCESS_TOKEN'])
 
 REPOS.each do |repo|
-  prs = client.pulls(repo, state: 'open').map { |pr| pr[:number] }.filter { |pr| client.pull(repo, pr)[:additions] > MAX_ADDITIONS }
-  prs.each do |pr|
-    comments = client.issue_comments(repo, pr).map { |comment| comment[:body] }
-    unless comments.any? { |comment| comment.include?(SPLITS) }
+  client.pulls(repo, state: 'open').map { |pr| pr[:number] }.filter { |pr| client.pull(repo, pr)[:additions] > MAX_ADDITIONS }.each do |pr|
+    unless client.issue_comments(repo, pr).any? { |comment| comment[:body].include?(SPLITS) }
       client.add_comment(repo, pr, SPLITS + SIGNATURE)
       puts "Commented on #{repo}, PR \##{pr}"
     end
