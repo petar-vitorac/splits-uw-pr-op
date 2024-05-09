@@ -12,10 +12,11 @@ SIGNATURE = "\n--\nThis comment was automatically posted because the additions i
 puts SPLITS
 
 client = Octokit::Client.new(access_token: ENV['GH_ACCESS_TOKEN'])
+username = client.user()[:login]
 
 REPOS.each do |repo|
   client.pulls(repo, state: 'open').map { |pr| pr[:number] }.filter { |pr| client.pull(repo, pr)[:additions] > MAX_ADDITIONS }.each do |pr|
-    unless client.issue_comments(repo, pr).any? { |comment| comment[:body].include?(SPLITS) }
+    unless client.issue_comments(repo, pr).any? { |comment| comment[:body].include?(SPLITS) && comment[:user][:login] == username }
       client.add_comment(repo, pr, SPLITS + SIGNATURE)
       puts "Commented on #{repo}, PR \##{pr}"
     end
