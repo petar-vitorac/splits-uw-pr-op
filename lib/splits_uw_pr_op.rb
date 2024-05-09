@@ -7,7 +7,8 @@ REPOS = ENV['REPOS'].split
 MAX_ADDITIONS = ENV['MAX_ADDITIONS'].to_i
 SPLITS = 'splits uw pr op'
 SIGNATURE = "\n--\nThis comment was automatically posted because the additions in your PR have exceeded #{MAX_ADDITIONS} lines.\nhttps://github.com/petar-vitorac/splits-uw-pr-op".freeze
-#Josh is een beast en Petar ook
+
+# Shoutout to Quivr
 puts SPLITS
 
 client = Octokit::Client.new(access_token: ENV['GH_ACCESS_TOKEN'])
