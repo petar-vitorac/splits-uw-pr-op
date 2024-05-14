@@ -15,10 +15,18 @@ client = Octokit::Client.new(access_token: ENV['GH_ACCESS_TOKEN'])
 username = client.user()[:login]
 
 REPOS.each do |repo|
-  client.pulls(repo, state: 'open').map { |pr| pr[:number] }.filter { |pr| client.pull(repo, pr)[:additions] > MAX_ADDITIONS }.each do |pr|
-    unless client.issue_comments(repo, pr).any? { |comment| comment[:body].include?(SPLITS) && comment[:user][:login] == username }
-      client.add_comment(repo, pr, SPLITS + SIGNATURE)
-      puts "Commented on #{repo}, PR \##{pr}"
+  client.pulls(repo, state: 'open').map { |pr| pr[:number] }.each do |pr|
+    if client.pull(repo, pr)[:additions] > MAX_ADDITIONS
+      unless client.issue_comments(repo, pr).any? { |comment| comment[:body].include?(SPLITS) && comment[:user][:login] == username }
+        client.add_comment(repo, pr, SPLITS + SIGNATURE)
+        puts "Commented on #{repo}, PR \##{pr}"
+      end
+    else
+      existing_comment = client.issue_comments(repo, pr).filter { |comment| comment[:body].include?(SPLITS) && comment[:user][:login] == username }[0]
+      if existing_comment
+        client.delete_comment(repo, existing_comment[:id])
+        puts "Deleted comment on #{repo}, PR \##{pr}"
+      end
     end
   end
 end
